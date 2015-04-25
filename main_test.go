@@ -32,14 +32,19 @@ func TestUnderstandsYAML(t *testing.T) {
 			t := Tests{}
 			t.Test.Override = []string{"./", "./v", "./ve"}
 
-			So(getCommandsFromYAML([]byte(simpleData)), ShouldResemble, t)
+			r, err := getCommandsFromYAML([]byte(simpleData))
+
+			So(r, ShouldResemble, t)
+			So(err, ShouldBeEmpty)
 		})
 
-		//    SkipConvey("for the moment", func() {
-		//        Convey("Should log an error with bad YAML", t, func() {
-		//            So(getCommandsFromYAML([]byte("sdkfjls")), ShouldPanicWith, errors.New("error cannot parse YAML"))
-		//        })
-		//    })
+		Convey("Should log an error with bad YAML", func() {
+
+			t, err := getCommandsFromYAML([]byte("sdkfjls"))
+
+			So(err, ShouldNotBeNil)
+			So(t, ShouldResemble, Tests{})
+		})
 
 		Convey("Circle.yml should not exist", func() {
 			So(doesACircleFileExist("/tmp/baz.yml"), ShouldEqual, false)
@@ -51,26 +56,11 @@ func TestUnderstandsYAML(t *testing.T) {
 
 		Convey("Finding a circlefile should be good!", func() {
 			So(readCircleFile("/tmp/circle.yml"), ShouldEqual, goodData)
-
 		})
 
-		//		Convey("command splitter shoud split command", func() {
-		//			command := "./vendor/bin/phpcs --standard=vendor/crowdcube/codesniffer-standard/Crowdcube -p --report=full --report-checkstyle=build/logs/checkstyle.xml --runtime-set ignore_warnings_on_exit true src/ lib/ tests/"
-		//			cmd := "./vendor/bin/phpcs"
-		//			results := []string{
-		//				"--standard=vendor/crowdcube/codesniffer-standard/Crowdcube",
-		//				"-p",
-		//				"--report=full",
-		//				"--report-checkstyle=build/logs/checkstyle.xml",
-		//				"--runtime-set",
-		//				"ignore_warnings_on_exit",
-		//				"true", "src/", "lib/", "tests/",
-		//			}
-		//			cmdarg := CmdArg{cmd, results}
-		//			So(splitCommand(command), ShouldResemble, cmdarg)
-		//		})
 
-		Convey("clean vendor bin", func() {
+
+		Convey("clean vendor bin from string", func() {
 			So(cleanVendorBin("./vendor/bin/baz"), ShouldEqual, "./baz")
 		})
 
@@ -78,10 +68,18 @@ func TestUnderstandsYAML(t *testing.T) {
 			So(cleanVendorBin("./bin/baz"), ShouldEqual, "./bin/baz")
 		})
 
-		Convey("run and echo a php -v command", func() {
+		Convey("run and echo a pwd command", func() {
 			c := "pwd"
-			executeCommands(c)
-			//So(executeCommands(c), ShouldNotPanic)
+			err := executeCommands(c)
+			So(err, ShouldBeNil)
+		})
+
+		Convey("run a command with invalid arguments", func() {
+			So(executeCommands("pwd -e"), ShouldNotBeNil)
+		})
+
+		Convey("run all of the above", func() {
+			So(runCircleTests("/tmp/curcle.yml"), ShouldBeNil)
 		})
 
 		Reset(func() {
