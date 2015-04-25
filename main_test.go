@@ -79,8 +79,8 @@ func TestUnderstandsYAML(t *testing.T) {
 		})
 
 		Convey("run and echo a php -v command", func() {
-			//c := CmdArg{"grep", []string{"-v"}}
-			//executeCommands(c)
+			c := "pwd"
+			executeCommands(c)
 			//So(executeCommands(c), ShouldNotPanic)
 		})
 
