@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -9,7 +10,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"errors"
 )
 
 //
@@ -30,7 +30,7 @@ func main() {
 	}
 }
 
-func runCircleTests(file string) (error) {
+func runCircleTests(file string) error {
 	err := errors.New("")
 
 	if !doesACircleFileExist(file) {
@@ -73,7 +73,7 @@ func cleanVendorBin(unclean string) (clean string) {
 	return strings.Replace(unclean, "./vendor/bin/", "./", 1)
 }
 
-func executeCommands(incoming string) (error) {
+func executeCommands(incoming string) error {
 
 	//
 	// Taken from http://nathanleclaire.com/blog/2014/12/29/shelled-out-commands-in-golang/

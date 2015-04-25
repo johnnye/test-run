@@ -58,8 +58,6 @@ func TestUnderstandsYAML(t *testing.T) {
 			So(readCircleFile("/tmp/circle.yml"), ShouldEqual, goodData)
 		})
 
-
-
 		Convey("clean vendor bin from string", func() {
 			So(cleanVendorBin("./vendor/bin/baz"), ShouldEqual, "./baz")
 		})
