@@ -12,13 +12,12 @@ import (
 	"errors"
 )
 
+//
+// Tests is used to unmarshal the yaml
+// Overrides is an array of the tests to run
+//
 type Tests struct {
 	Test struct{ Override []string }
-}
-
-type CmdArg struct {
-	Cmd  string
-	args []string
 }
 
 func main() {
