@@ -28,34 +28,38 @@ func TestUnderstandsYAML(t *testing.T) {
 
 		ioutil.WriteFile("/tmp/circle.yml", []byte(goodData), 0644)
 
+		circle := Circle{}
+		circle.Filename = "/tmp/circle.yml"
+
 		Convey("Should find testing -> override in YMAL", func() {
 			t := Circle{}
 			t.Test.Command = []string{"./", "./v", "./ve"}
 
-			r, err := getCommandsFromYAML([]byte(simpleData))
+			err := t.getCommandsFromYAML([]byte(simpleData))
 
-			So(r, ShouldResemble, t)
+			So(t, ShouldResemble, t)
 			So(err, ShouldBeEmpty)
 		})
 
 		Convey("Should log an error with bad YAML", func() {
 
-			t, err := getCommandsFromYAML([]byte("sdkfjls"))
+			err := circle.getCommandsFromYAML([]byte("sdkfjls"))
+			shouldBe := Circle{Filename: "/tmp/circle.yml"}
 
 			So(err, ShouldNotBeNil)
-			So(t, ShouldResemble, Circle{})
+			So(circle, ShouldResemble, shouldBe)
 		})
 
 		Convey("Circle.yml should not exist", func() {
-			So(doesACircleFileExist("/tmp/baz.yml"), ShouldEqual, false)
+			So(doesFileExist("/tmp/for.baz"), ShouldEqual, false)
 		})
 
 		Convey("circle.yml should exist", func() {
-			So(doesACircleFileExist("/tmp/circle.yml"), ShouldEqual, true)
+			So(doesFileExist("/tmp/circle.yml"), ShouldEqual, true)
 		})
 
 		Convey("Finding a circlefile should be good!", func() {
-			So(readCircleFile("/tmp/circle.yml"), ShouldEqual, goodData)
+			So(readFile("/tmp/circle.yml"), ShouldEqual, goodData)
 		})
 
 		Convey("clean vendor bin from string", func() {
@@ -77,7 +81,7 @@ func TestUnderstandsYAML(t *testing.T) {
 		})
 
 		Convey("run all of the above", func() {
-			So(runCircleTests("/tmp/curcle.yml"), ShouldBeNil)
+			So(circle.runTests(), ShouldBeNil)
 		})
 
 		Reset(func() {
