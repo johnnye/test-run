@@ -4,73 +4,50 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
-	"os"
 	"os/exec"
 	"strings"
+
+	"gopkg.in/yaml.v2"
+	"os"
 )
 
-//
-// Tests is used to unmarshal the yaml
-// Overrides is an array of the tests to run
-//
-type Tests struct {
-	Test struct{ Override []string }
+type Provider interface {
+	filename() string
+	runTests() error
+	getCommandsFromYAML([]byte) error
+	doesFileExist() bool
+}
+
+type Circle struct {
+	Test struct{ Command []string }
 }
 
 func main() {
-	filename := "circle.yml"
 
-	err := runCircleTests(filename)
-
-	if err != nil {
-		log.Println(err)
-	}
-}
-
-func runCircleTests(file string) error {
+	providers := []Provider{Circle{}}
 	err := errors.New("")
-
-	if !doesACircleFileExist(file) {
-		err = errors.New("file does not exist")
+	for _, provider := range providers {
+		err = provider.runTests()
+		fmt.Println(provider.filename())
+		if err != nil {
+			log.Println(provider.filename(), " had this error ", err)
+		}
 	}
-
-	raw := readCircleFile(file)
-
-	commands, err := getCommandsFromYAML([]byte(raw))
-
-	for _, cmd := range commands.Test.Override {
-		err = executeCommands(cmd)
-	}
-	return err
 }
 
-func getCommandsFromYAML(raw []byte) (Tests, error) {
-	t := Tests{}
-	err := yaml.Unmarshal(raw, &t)
-	return t, err
+func cleanVendorBin(unclean string) (clean string) {
+	return strings.Replace(unclean, "./vendor/bin/", "./", 1)
 }
 
-func readCircleFile(filename string) (contents string) {
+func readFile(filename string) (contents string) {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 
 	}
 
 	return string(data)
-}
-
-func doesACircleFileExist(filename string) bool {
-	if _, err := os.Stat(filename); os.IsNotExist(err) {
-		return false
-	}
-	return true
-}
-
-func cleanVendorBin(unclean string) (clean string) {
-	return strings.Replace(unclean, "./vendor/bin/", "./", 1)
 }
 
 func executeCommands(incoming string) error {
@@ -91,4 +68,38 @@ func executeCommands(incoming string) error {
 	err = cmd.Start()
 	err = cmd.Wait()
 	return err
+}
+
+func (c Circle) filename() string {
+	return "circle.yml"
+}
+
+func (c Circle) runTests() error {
+	err := errors.New("")
+
+	if !c.doesFileExist() {
+		err = errors.New("file does not exist")
+	}
+
+	raw := readFile(c.filename())
+
+	err = c.getCommandsFromYAML([]byte(raw))
+
+	for _, cmd := range c.Test.Command {
+		err = executeCommands(cmd)
+	}
+
+	return err
+}
+
+func (c Circle) getCommandsFromYAML(raw []byte) error {
+	err := yaml.Unmarshal(raw, &c)
+	return err
+}
+
+func (c Circle) doesFileExist() bool {
+	if _, err := os.Stat(c.filename()); os.IsNotExist(err) {
+		return false
+	}
+	return true
 }

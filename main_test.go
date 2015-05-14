@@ -29,8 +29,8 @@ func TestUnderstandsYAML(t *testing.T) {
 		ioutil.WriteFile("/tmp/circle.yml", []byte(goodData), 0644)
 
 		Convey("Should find testing -> override in YMAL", func() {
-			t := Tests{}
-			t.Test.Override = []string{"./", "./v", "./ve"}
+			t := Circle{}
+			t.Test.Command = []string{"./", "./v", "./ve"}
 
 			r, err := getCommandsFromYAML([]byte(simpleData))
 
@@ -43,7 +43,7 @@ func TestUnderstandsYAML(t *testing.T) {
 			t, err := getCommandsFromYAML([]byte("sdkfjls"))
 
 			So(err, ShouldNotBeNil)
-			So(t, ShouldResemble, Tests{})
+			So(t, ShouldResemble, Circle{})
 		})
 
 		Convey("Circle.yml should not exist", func() {
