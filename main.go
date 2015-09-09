@@ -8,7 +8,6 @@ import (
 	"os/exec"
 	"strings"
 	"os"
-	"gopkg.in/yaml.v2"
 	"log"
 )
 
@@ -22,15 +21,8 @@ type Provider interface {
 // Circle is used to unmarshal the yaml
 // Overrides is an array of the tests to run
 //
-type Circle struct {
-	Filename string
-	Test     struct{ Command []string }
-}
 
-type Travis struct {
-	Filename string
-	Script   string
-}
+
 
 func main() {
 
@@ -38,6 +30,9 @@ func main() {
 	err := errors.New("")
 	for _, provider := range providers {
 		err = provider.runTests()
+		if err != nil{
+			fmt.Println(err)
+		}
 		fmt.Println("===================")
 	}
 	log.Println(err)
@@ -82,63 +77,3 @@ func doesFileExist(filename string) bool {
 	}
 	return true
 }
-
-func (c *Circle) filename() string {
-	if c.Filename == "" {
-		c.Filename = "circle.yml"
-	}
-	return c.Filename
-}
-
-func (c *Circle) runTests() error {
-	err := errors.New("")
-
-	if !doesFileExist(c.filename()) {
-		err = errors.New("file does not exist")
-	}
-
-	raw := readFile(c.filename())
-
-	err = c.getCommandsFromYAML([]byte(raw))
-
-	for _, cmd := range c.Test.Command {
-		err = executeCommands(cmd)
-	}
-
-	return err
-}
-
-func (c *Circle) getCommandsFromYAML(raw []byte) error {
-	err := yaml.Unmarshal(raw, &c)
-	return err
-}
-
-func (t *Travis) filename() string {
-	if t.Filename == "" {
-		t.Filename = ".travis.yml"
-	}
-	return t.Filename
-}
-
-func (t *Travis) runTests() error {
-	err := errors.New("")
-
-	if !doesFileExist(t.filename()) {
-		err = errors.New("file does not exist")
-	}
-	raw := readFile(t.filename())
-
-	err = t.getCommandsFromYAML([]byte(raw))
-
-	err = executeCommands(t.Script)
-
-	return err
-}
-
-func (t *Travis) getCommandsFromYAML(raw []byte) error {
-	err := yaml.Unmarshal(raw, &t)
-	return err
-}
-
-
-
