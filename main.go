@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"os"
 	"os/exec"
 	"strings"
-	"os"
-	"log"
 )
 
 type Provider interface {
@@ -22,15 +22,13 @@ type Provider interface {
 // Overrides is an array of the tests to run
 //
 
-
-
 func main() {
 
 	providers := []Provider{&Circle{}, &Travis{}}
 	err := errors.New("")
 	for _, provider := range providers {
 		err = provider.runTests()
-		if err != nil{
+		if err != nil {
 			fmt.Println(err)
 		}
 		fmt.Println("===================")

@@ -1,8 +1,8 @@
 package main
 
 import (
-    "gopkg.in/yaml.v2"
-    "errors"
+	"errors"
+	"gopkg.in/yaml.v2"
 	"strings"
 )
 
@@ -22,7 +22,7 @@ func (c *Circle) runTests() error {
 	err := errors.New("")
 
 	if !doesFileExist(c.filename()) {
-		s := []string{c.filename(), "file does not exist"};
+		s := []string{c.filename(), "file does not exist"}
 		err = errors.New(strings.Join(s, " "))
 		return err
 	}

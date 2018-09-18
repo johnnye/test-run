@@ -1,8 +1,8 @@
 package main
 
 import (
-	"gopkg.in/yaml.v2"
 	"errors"
+	"gopkg.in/yaml.v2"
 	"strings"
 )
 
@@ -22,7 +22,7 @@ func (t *Travis) runTests() error {
 	err := errors.New("")
 
 	if !doesFileExist(t.filename()) {
-		s := []string{t.filename(), "file does not exist"};
+		s := []string{t.filename(), "file does not exist"}
 		err = errors.New(strings.Join(s, " "))
 		return err
 	}
@@ -39,6 +39,3 @@ func (t *Travis) getCommandsFromYAML(raw []byte) error {
 	err := yaml.Unmarshal(raw, &t)
 	return err
 }
-
-
-
