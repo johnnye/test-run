@@ -1,1 +1,6 @@
 script: go test -v
+language: go
+go:
+  - "1.x"
+  - "1.8"
+  - master
